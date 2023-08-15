@@ -1,0 +1,357 @@
+---
+title: "Exam"
+author: "Rida Fathima"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Honor Code
+I have neither given nor received aid on this examination, nor have I concealed any violation of the Honor Code.\
+
+
+1)
+
+#a)
+```{r}
+xbar = 68.55
+s2 = 12.64
+n= 20
+alpha = 0.1
+talpha0.5 = qt(alpha/2,n-1, lower.tail=F)
+lb = xbar - talpha0.5*sqrt(s2/n)
+ub = xbar + talpha0.5*sqrt(s2/n)
+
+print(paste("[lb:," ,round(lb,4),',ub:',round(ub,4),']'))
+
+```
+#answer is lb = 67.1754, ub =69.9246
+
+1.b)
+```{r}
+alpha= 0.1
+n = 20
+xbar = 68.55
+zalpha0.5 = qnorm(alpha/2,lower.tail=F)
+std = 3.27
+lb1 = xbar - zalpha0.5*(std/sqrt(n))
+ub1 = xbar + zalpha0.5*(std/sqrt(n))
+
+print(paste("[lb:," ,round(lb1,4),',ub:',round(ub1,4),']'))
+
+```
+#answer is lb = 67.3473, ub =69.7527\
+1.c)\
+ub3 - lb3 =1  (Given that interval should be of 1 inch)\
+ub3 = xbar + zalpha0.5*(std/sqrt(n))\
+1+lb3 = xbar + zalpha0.5*(std/sqrt(n)) #-----1.\
+lb3 = xbar - zalpha0.5*(std/sqrt(n)) #----------2.\
+subtracting 2 and 1\
+1 = 2 * zalpha0.5 * (std/sqrt(n))\
+```{r}
+
+
+n = (2*zalpha0.5*std)^2
+n
+
+
+
+```
+#answer is n = 116\
+1.d)
+
+```{r}
+
+df = data.frame()
+a = seq(120,160,1)
+for (i in a){
+
+  talpha0.5 = qt(alpha/2,i-1, lower.tail=F)
+  lb =  xbar - talpha0.5*sqrt(s2/i)
+  ub =  xbar + talpha0.5*sqrt(s2/i)
+  df1 = data.frame(n=i, lb =lb,ub=ub,difference = abs(ub-lb)
+                   ,close_diff = abs(ub-lb)-1)
+  
+  
+  df = rbind(df,df1)
+  
+
+}
+
+plot(a,df$close_diff)
+df$n[abs(df$close_diff)==min(abs(df$close_diff))]
+
+
+```
+Explanation:
+Hence at n=139, we get the confidence interval difference closest to 1 inch.
+
+This number is Not sufficient as the interval difference comes to 0.9987314\  
+
+However, if we increase or decrease the n value, the interval difference goes further away from 1 inch.
+
+
+
+
+----
+
+2)\
+
+```{r}
+n= 12
+x = c(6.0, 6.4, 7.0, 5.8, 6.0, 5.8, 5.9, 6.7, 7.1, 6.5, 6.3, 5.8)
+alpha = 0.01
+sig = var(x)
+```
+2.a)
+```{r}
+chisq0.5.1 = qchisq(alpha/2,n-1,lower.tail=F)
+chisq0.5.2 = qchisq(alpha/2,n-1,lower.tail=T)
+
+lb = ((n-1)*sig)/chisq0.5.1
+ub = ((n-1)*sig)/chisq0.5.2
+
+print(paste("[lb:," ,round(lb,4),',ub:',round(ub,4),']'))
+```
+#Answer is : lb = 0.0905 and ub = 0.9306
+
+Hence, we are 99% confident that the variance of the plasma cholesterol levels is between [0.0905,0.9306]
+
+2.b)
+
+Assumptions:\
+It is assumed that the data is normally distributed. This can be checked using Shapiro-Wilk test.
+```{r}
+shapiro.test(x)
+```
+Here P-value is greater than alpha. Hence the data is normally distributed
+```{r}
+qqnorm(x)
+qqline(x)
+```
+
+Using the above plots, we can say that the data is somewhat normally distributed.\
+We have also assumed, to construct a two sided confidence interval.\
+
+3.a)
+```{r}
+
+library(readxl)
+x = read_excel("C:/Users/Rida/Documents/Final_Exam.xlsx", 1)$R
+shapiro.test(x)
+
+#here x is the coefficient of restitution data
+```
+here P-value is greater than alpha = 0.01. Hence it is said to be normally distributed.
+
+```{r}
+qqnorm(x)
+qqline(x)
+```
+From the above plots we can say that the data is normally distributed.\
+
+Hence, there is enough evidence to support the assumption that the coefficient of restitution is normally distributed.
+
+3.b)\
+h0: mu =0
+ha: mu >0.62
+```{r}
+alpha = 0.01
+n= length(x)
+talpha = qt(alpha, n-1,lower.tail=F)
+talpha
+xbar = mean(x)
+s = sd(x)
+t0 = (xbar - 0.62)/(s/sqrt(n))
+t0
+
+```
+
+#t0 = 2.687 and talpha = 2.42
+
+Here, t0 is greater than talpha. So we reject the Null Hypothesis.\
+Hence, we claim that R(coefficient of restitution) exceeds 0.62.\
+
+3.c)\
+```{r}
+p.value = pt(t0,n-1,lower.tail=F)
+p.value
+```
+#P.value = 0.0052
+
+Since, P-value is less than alpha, We reject Null Hypothesis.\
+Hence, we claim that R(coefficient of restitution) exceeds 0.62.
+
+3.d)\
+Given = true mean coefficient of restitution is as high as
+0.63
+```{r}
+library("pwr")
+pwr.t.test(n=n, d=(0.63-0.62)/s, alternative = "greater", type='one.sample', sig.level=0.01)
+```
+#We get power =0.994 
+
+Another approach:\
+ 
+```{r}
+delta = ((0.01)*sqrt(n))/s
+a= talpha -delta
+
+beta = pt(a,n-1)
+
+power  = 1-beta
+power
+
+
+```
+#Power = 0.9936 which is almost around 0.994
+
+3.e)\
+Given: power = 0.75,
+true mean coefficient of restitution = 0.63
+
+```{r}
+
+pwr.t.test(power=0.75,d=(0.63-0.62)/s , alternative = "greater", type='one.sample', sig.level=0.01)
+```
+
+#From here we get n =17\
+#hence n = 17 is required to detect a true mean coefficient of restitution as high as 0.63, if we want the power of the test to be at least 0.75
+
+4)\
+```{r}
+data = data.frame(
+  Flow = c(125,125,125,125,125,125,160,160,160,160,160,160,250,250,250,250,250,250),
+  Observation = c(2.7,3.6,2.6,3,3.2,3.8,4.9,4.6,5,4.8,3.6,4.2,4.6,3.4,2.9,3.8,4.1,5.1)
+)
+  
+data$Flow = factor(data$Flow)
+str(data)
+```
+
+4.a)\
+
+For Bartlett test:\
+
+H0:	σ1^2 = σ2^2 = ... = σk^2\
+Ha:	σi^2 ≠ σj^2    for at least one pair (i,j).
+```{r}
+boxplot(Observation~Flow, data = data)
+bartlett.test(Observation~ Flow,data=data)
+
+```
+#Here it is assumed that the data is coming form a normal distribution and the observations are independent of each other.\
+
+p-value is greater than alpha. \
+So, we fail to reject the Null Hypothesis which states that all Variances are same.\
+Therefore, the variances are same\
+
+for Hypothesis test in ANOVA:\
+
+H0: μ1 = μ2 = μ3 ... = μk\
+H1: Means are not all equal.\
+
+
+```{r}
+
+data.ANOVA = aov(Observation~Flow,data=data)
+summary(data.ANOVA)
+
+
+```
+
+Here, the P-value is less than alpha.\
+therefore, we reject Null Hypothesis of ANOVA test\
+hence, the mean values of different C2F6 flow rates are different.\
+
+Hence, Changing the C2f6 flow rate will have an affect on the etch uniformity.
+
+
+
+4.b)\
+
+It is assumed that the residuals are normally and independently distributed with the same variance for
+each treatment or C2F6 Flow rate.\
+
+```{r}
+
+a = data.ANOVA$residuals
+plot(a)
+```
+from the above plot we infer that the residuals have no specific pattern to follow.
+Hence, we can say that they are homogeneous.
+```{r}
+qqnorm(a)
+qqline(a)
+```
+
+From the above plots we say that the residuals are normally distributed.\
+
+
+
+```{r}
+shapiro.test(a)
+
+```
+
+From shapiro wilk test, we see that P value is grater than alpha =0.05.\
+Hence, we conclude that Residuals are normally distributed.\
+
+Hence, no, The residuals do not indicate any problem with the underlying assumptions.\
+
+
+4.c)\
+
+
+H0 : µi = µj\
+H1 : µi != µj\
+```{r}
+alpha = 0.05
+n = 6
+MSE = 0.3834
+talpha0.5 = qt(0.05/2,18-3,lower.tail=F)
+LSD = talpha0.5*sqrt(2*MSE/n)
+LSD
+```
+#LSD = 0.7619
+```{r}
+
+y1 = c(2.7,3.6,2.6,3,3.2,3.8)
+y2 = c(4.9,4.6,5,4.8,3.6,4.2)
+y3 = c(4.6,3.4,2.9,3.8,4.1,5.1)
+y1bar = mean(y1)
+y2bar = mean(y2)
+y3bar = mean(y3)
+
+a = abs(y1bar-y2bar)
+a
+
+b = abs(y2bar-y3bar)
+b
+
+c = abs(y3bar-y1bar)
+c
+```
+
+Here we see that 'a' and 'c' are greater than LSD. Hence, we reject Null Hypothesis.\
+Hence for 125 - 160 and 125-250 Mean values are different.\
+
+Here 'b' is less than LSD. So, we fail to reject its Null Hypothesis.\
+160-250 Mean values are same.\
+
+
+4.d)
+```{r}
+sig2 = 0.5
+groupmeans=c(3.3,4.4,4.0)
+power.anova.test(groups=length(groupmeans),between.var = var(groupmeans),within.var = sig2, sig.level = 0.05,n=6)
+
+```
+
+
+The probability of detecting the effect of C2F6 flow rate on etch uniformity in this experiment is 0.589 (around 58.9%)
+
